@@ -12,6 +12,11 @@ module GvYoutube
         build_entry(path, site)
       end
 
+      Dir.glob(File.join(article_dir, "*.md")).each do |path|
+        filename = File.basename(path)
+        site.static_files << Jekyll::StaticFile.new(site, site.source, "articles", filename)
+      end
+
       page = Jekyll::Page.new(site, site.source, "articles", "index.json")
       page.data["layout"] = nil
       page.content = JSON.pretty_generate(entries)

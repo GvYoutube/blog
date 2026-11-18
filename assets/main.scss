@@ -29,3 +29,22 @@ a:focus {
 .post-content pre {
   overflow-x: auto;
 }
+
+.site-nav {
+  float: right;
+  margin-top: 12px;
+  line-height: 54px;
+}
+
+.main-site-link,
+.main-site-link:visited {
+  color: #d94b4b;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.main-site-link:hover,
+.main-site-link:focus {
+  color: #ff7777;
+  text-decoration: underline;
+}
