@@ -44,7 +44,6 @@ module GvYoutube
       preview = preview ? clean_inline(preview) : ""
       preview = preview.length > 220 ? "#{preview[0, 217].rstrip}..." : preview
       date = metadata["date"] || filename_date(slug)
-      date = normalize_date(date) if date
 
       {
         "slug" => slug,
@@ -66,44 +65,6 @@ module GvYoutube
     def filename_date(slug)
       match = slug.match(/\A(\d{4}-\d{2}-\d{2})/)
       match && match[1]
-    end
-
-    def normalize_date(value)
-      text = value.is_a?(Date) ? value.iso8601 : value.to_s.strip
-      return value.iso8601 if value.is_a?(Date)
-      return nil if text.empty?
-
-      iso = text.match(/\A(\d{4})[-.](\d{1,2})[-.](\d{1,2})\z/)
-      if iso
-        year, middle, final = iso.captures.map(&:to_i)
-        if middle <= 12
-          date = Date.new(year, middle, final) rescue nil
-          return date.iso8601 if date
-        elsif middle <= 31 && final <= 12
-          date = Date.new(year, final, middle) rescue nil
-          return date.iso8601 if date
-        end
-      end
-
-      slash = text.match(/\A(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})\z/)
-      if slash
-        first, second, year = slash.captures
-        year = year.to_i
-        year += year >= 70 ? 1900 : 2000 if year < 100
-        month, day = first.to_i, second.to_i
-        month, day = day, month if month > 12 && day <= 12
-        date = Date.new(year, month, day) rescue nil
-        return date.iso8601 if date
-      end
-
-      separated = text.match(/\A(\d{1,2})[-.](\d{1,2})[-.](\d{4})\z/)
-      if separated
-        day, month, year = separated.captures.map(&:to_i)
-        date = Date.new(year, month, day) rescue nil
-        return date.iso8601 if date
-      end
-
-      text
     end
 
     def clean_inline(value)

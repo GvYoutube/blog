@@ -10,37 +10,6 @@ title: Articles
 </section>
 
 <script>
-  function parseArticleDate(value) {
-    if (!value) return null;
-
-    const text = String(value).trim();
-    const iso = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-    if (iso) {
-      if (Number(iso[2]) <= 12) return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]), 0, 0, 0);
-      if (Number(iso[2]) <= 31 && Number(iso[3]) <= 12) return new Date(Number(iso[1]), Number(iso[3]) - 1, Number(iso[2]), 0, 0, 0);
-    }
-
-    const slash = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/);
-    if (slash) {
-      let year = Number(slash[3]);
-      if (year < 100) year += year >= 70 ? 1900 : 2000;
-      const first = Number(slash[1]);
-      const second = Number(slash[2]);
-      if (first <= 12) return new Date(year, first - 1, second, 0, 0, 0);
-      if (second <= 12) return new Date(year, second - 1, first, 0, 0, 0);
-    }
-
-    const separated = text.match(/^(\d{1,2})[-.](\d{1,2})[-.](\d{4})$/);
-    if (separated) {
-      const first = Number(separated[1]);
-      const second = Number(separated[2]);
-      const year = Number(separated[3]);
-      if (first <= 31 && second <= 12) return new Date(year, second - 1, first, 0, 0, 0);
-    }
-
-    return null;
-  }
-
   async function loadArticles() {
     const container = document.getElementById('articles');
 
@@ -58,7 +27,7 @@ title: Articles
       const list = document.createElement('ul');
       list.className = 'post-list';
 
-      for (const article of articles.sort((a, b) => (parseArticleDate(b.date)?.getTime() || 0) - (parseArticleDate(a.date)?.getTime() || 0))) {
+      for (const article of articles.sort((a, b) => new Date(b.date) - new Date(a.date))) {
         if (!article.slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(article.slug)) continue;
 
         const item = document.createElement('li');
@@ -71,8 +40,7 @@ title: Articles
 
         const meta = document.createElement('span');
         meta.className = 'post-meta';
-        const parsedDate = parseArticleDate(article.date);
-        meta.textContent = parsedDate ? parsedDate.toLocaleDateString() : (article.date || '');
+        meta.textContent = article.date ? new Date(`${article.date}T00:00:00`).toLocaleDateString() : '';
 
         item.append(meta, heading);
         if (article.description) {
