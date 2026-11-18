@@ -27,6 +27,17 @@ title: Article
 
   function renderInline(value) {
     let rendered = escapeHtml(value);
+    rendered = rendered.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g, (_match, alt, source) => {
+      const lowerSource = source.toLowerCase();
+      if (/^(?:javascript|data|vbscript):/.test(lowerSource)) return escapeHtml(alt);
+      let resolvedSource = source;
+      if (!/^https?:\/\//.test(lowerSource) && !/^\//.test(source)) {
+        resolvedSource = `{{ site.baseurl }}/${source.replace(/^\.?\//, '')}`;
+      } else if (/^\/(?!\/)/.test(source)) {
+        resolvedSource = `{{ site.baseurl }}${source}`;
+      }
+      return `<img src="${resolvedSource}" alt="${escapeHtml(alt)}" loading="lazy">`;
+    });
     rendered = rendered.replace(/`([^`]+)`/g, '<code>$1</code>');
     rendered = rendered.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" rel="noopener noreferrer">$1</a>');
     rendered = rendered.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
@@ -36,12 +47,27 @@ title: Article
 
   function renderMarkdown(markdown) {
     const lines = markdown.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').split('\n');
+    if (/^---\s*$/.test(lines[0])) {
+      const frontMatterEnd = lines.findIndex((line, index) => index > 0 && /^---\s*$/.test(line));
+      if (frontMatterEnd > 0) lines.splice(0, frontMatterEnd + 1);
+    }
     const output = [];
 
     for (let i = 0; i < lines.length;) {
       const line = lines[i];
 
       if (!line.trim()) {
+        i++;
+        continue;
+      }
+
+      const nextLine = lines[i + 1] || '';
+      if (line.includes('|') && /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(nextLine)) {
+        i += 2;
+        while (i < lines.length && lines[i].trim() && (lines[i].includes('|') || /^\s*$/.test(lines[i]))) i++;
+        continue;
+      }
+      if (line.includes('|') && i > 0 && /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(line)) {
         i++;
         continue;
       }
