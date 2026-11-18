@@ -3,6 +3,16 @@
 
 @import "minima";
 
+a,
+a:visited {
+  color: #d94b4b;
+}
+
+a:hover,
+a:focus {
+  color: #ff7777;
+}
+
 .post-list {
   list-style: none;
   margin-left: 0;

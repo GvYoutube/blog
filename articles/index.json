@@ -1,14 +1,1 @@
-[
-  {
-    "slug": "welcome",
-    "title": "Welcome to the Blog",
-    "date": "2026-11-18",
-    "description": "A small introduction to this minimalist, Markdown-powered blog."
-  },
-  {
-    "slug": "building-a-static-blog",
-    "title": "Building a Static Blog",
-    "date": "2026-11-17",
-    "description": "Why static pages, Markdown files, and a thin JavaScript reader work well together."
-  }
-]
+[]
