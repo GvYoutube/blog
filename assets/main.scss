@@ -1,0 +1,21 @@
+---
+---
+
+@import "minima";
+
+.post-list {
+  list-style: none;
+  margin-left: 0;
+}
+
+.post-list li {
+  margin-bottom: 2rem;
+}
+
+.post-list h2 {
+  margin-bottom: 0.25rem;
+}
+
+.post-content pre {
+  overflow-x: auto;
+}

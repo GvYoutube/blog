@@ -1,0 +1,62 @@
+---
+layout: default
+title: Articles
+---
+
+<section class="article-list" aria-labelledby="article-list-heading">
+  <h1 id="article-list-heading">Articles</h1>
+  <div id="articles" aria-live="polite">Loading articles...</div>
+  <noscript>This article index requires JavaScript.</noscript>
+</section>
+
+<script>
+  async function loadArticles() {
+    const container = document.getElementById('articles');
+
+    try {
+      const response = await fetch('{{ site.baseurl }}/articles/index.json', { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Article index returned ${response.status}`);
+
+      const articles = await response.json();
+      if (!Array.isArray(articles) || articles.length === 0) {
+        container.textContent = 'No articles yet.';
+        return;
+      }
+
+      container.replaceChildren();
+      const list = document.createElement('ul');
+      list.className = 'post-list';
+
+      for (const article of articles.sort((a, b) => new Date(b.date) - new Date(a.date))) {
+        if (!article.slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(article.slug)) continue;
+
+        const item = document.createElement('li');
+        const heading = document.createElement('h2');
+        const link = document.createElement('a');
+        link.className = 'post-link';
+        link.href = `{{ site.baseurl }}/article.html?article=${encodeURIComponent(article.slug)}`;
+        link.textContent = article.title || article.slug;
+        heading.appendChild(link);
+
+        const meta = document.createElement('span');
+        meta.className = 'post-meta';
+        meta.textContent = article.date ? new Date(`${article.date}T00:00:00`).toLocaleDateString() : '';
+
+        item.append(meta, heading);
+        if (article.description) {
+          const description = document.createElement('p');
+          description.textContent = article.description;
+          item.appendChild(description);
+        }
+        list.appendChild(item);
+      }
+
+      container.appendChild(list);
+    } catch (error) {
+      container.textContent = 'Could not load the article index.';
+      console.error(error);
+    }
+  }
+
+  loadArticles();
+</script>
